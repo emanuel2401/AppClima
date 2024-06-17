@@ -36,4 +36,22 @@ class WeatherViewModel : ViewModel() {
         }
     }
 
+    fun getDataForMultipleCities(cities: List<String>) {
+        viewModelScope.launch {
+            cities.forEach { city ->
+                try {
+                    val response = weatherApi.getWeather(Constant.apiKey, city)
+                    if (response.isSuccessful) {
+                        response.body()?.let {
+                            _weatherResult.value = NetworkResponse.Success(it)
+                        }
+                    } else {
+                        _weatherResult.value = NetworkResponse.Error("Failed to load data for city: $city")
+                    }
+                } catch (e: Exception) {
+                    _weatherResult.value = NetworkResponse.Error("Failed to load data for city: $city")
+                }
+            }
+        }
+    }
 }
